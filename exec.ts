@@ -5,6 +5,7 @@ const response = Deno.run({
     "--allow-read",
     "--allow-env",
     "--allow-run",
+    "--allow-write",
     "--unstable",
     "-f",
     "app.ts",

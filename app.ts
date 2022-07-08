@@ -1,18 +1,53 @@
-import { Select, colors } from "./deps.ts";
+import { Select, colors, Input, ensureFile } from "./deps.ts";
 import { Directory } from "./type.ts";
 
-const path = "/Users/elizabethalcala/Sites";
+const fileForStoringPath = "./users.txt";
+
+await ensureFile(fileForStoringPath);
+
+let userPath = await Deno.readTextFile(fileForStoringPath);
+
+if (!userPath || Deno.args[0] === "-p") {
+  const folderPath: string = await Input.prompt({
+    message: "What's your folder path",
+    hint: colors.rgb24("Make sure to enter a valid path 😉", 0xffff00),
+  });
+
+  await Deno.writeTextFile("./users.txt", folderPath);
+
+  userPath = folderPath;
+}
+
+const exists = async (filename: string): Promise<boolean> => {
+  try {
+    await Deno.stat(filename);
+    return true;
+  } catch (error) {
+    if (error) {
+      console.log(
+        colors.rgb24("Sorry, something went wrong 🫣 ", 0xff3333),
+        error.message
+      );
+      Deno.exit(1);
+    }
+    throw error;
+  }
+};
+
+await exists(userPath);
 
 const getAllDirectories = async () => {
   const entries: Directory[] = [];
 
-  for await (const dirEntry of Deno.readDir(path)) {
+  for await (const dirEntry of Deno.readDir(userPath)) {
     if (dirEntry.isDirectory) {
-      for await (const childEntry of Deno.readDir(`${path}/${dirEntry.name}`)) {
+      for await (const childEntry of Deno.readDir(
+        `${userPath}/${dirEntry.name}`
+      )) {
         if (childEntry.isDirectory) {
           entries.push({
             ...childEntry,
-            path: `${path}/${dirEntry.name}/${childEntry.name}`,
+            path: `${userPath}/${dirEntry.name}/${childEntry.name}`,
           });
         }
       }
