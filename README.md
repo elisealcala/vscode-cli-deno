@@ -1,4 +1,6 @@
-# vscode-directory-open
+# VS Code Directory Search
+
+It will look for all the subdirectories of a given path.
 
 ## Install using deno install
 
@@ -22,4 +24,14 @@ $ echo "alias vsc=<PREVIOUS-PATH>" >> ~/.zshrc
 $ echo "alias vsc=<PREVIOUS-PATH>" >> ~/.bashrc
 ```
 
-Restart your terminal after that and that will be it 👻
+Restart your terminal 👻
+
+```
+$ vsc
+```
+
+The first time it will ask you for a path, if you want to change it just run
+
+```
+$ vsc -p
+```
