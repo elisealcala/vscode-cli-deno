@@ -1,4 +1,4 @@
-import { Select, colors, Input, ensureFile } from "./deps.ts";
+import { Select, colors, Input, ensureFile, walk } from "./deps.ts";
 import { Directory } from "./type.ts";
 
 const fileForStoringPath = "./users.txt";
@@ -36,22 +36,17 @@ const exists = async (filename: string): Promise<boolean> => {
 
 await exists(userPath);
 
+const iter = walk(userPath, {
+  maxDepth: 3,
+  includeDirs: true,
+  includeFiles: false,
+});
+
 const getAllDirectories = async () => {
   const entries: Directory[] = [];
 
-  for await (const dirEntry of Deno.readDir(userPath)) {
-    if (dirEntry.isDirectory) {
-      for await (const childEntry of Deno.readDir(
-        `${userPath}/${dirEntry.name}`
-      )) {
-        if (childEntry.isDirectory) {
-          entries.push({
-            ...childEntry,
-            path: `${userPath}/${dirEntry.name}/${childEntry.name}`,
-          });
-        }
-      }
-    }
+  for await (const dirEntry of iter) {
+    entries.push(dirEntry);
   }
 
   return entries;
@@ -72,4 +67,7 @@ const result: string = await Select.prompt({
   })),
 });
 
-await Deno.run({ cmd: ["code", result] }).status();
+await Deno.run({
+  cmd: ["code", "."],
+  cwd: result,
+}).status();
